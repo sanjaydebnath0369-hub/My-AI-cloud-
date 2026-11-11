@@ -1,0 +1,183 @@
+{
+  "entities": {
+    "AppQuota": {
+      "title": "App Quota",
+      "description": "Free plan API call metrics and quotas for connected services",
+      "type": "object",
+      "properties": {
+        "serviceId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "serviceName": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "usedCalls": {
+          "type": "number"
+        },
+        "maxLimit": {
+          "type": "number"
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "updatedAt": {
+          "type": "number"
+        }
+      },
+      "required": ["serviceId", "serviceName", "usedCalls", "maxLimit", "userId"]
+    },
+    "MemoryItem": {
+      "title": "Memory Item",
+      "description": "User memories, episodic logs, knowledge docs, and semantic items with cross-device sync",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "type": {
+          "type": "string",
+          "enum": ["episodic", "semantic", "document", "user_profile"]
+        },
+        "importance": {
+          "type": "number"
+        },
+        "timestamp": {
+          "type": "number"
+        }
+      },
+      "required": ["id", "userId", "title", "content", "type", "importance", "timestamp"]
+    },
+    "VfsFile": {
+      "title": "Virtual File",
+      "description": "Virtual file system file stored per user",
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "language": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 200000
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "updatedAt": {
+          "type": "number"
+        }
+      },
+      "required": ["path", "name", "language", "content", "userId", "updatedAt"]
+    },
+    "SwarmTask": {
+      "title": "Swarm Task",
+      "description": "Autonomous multi-agent task plan and execution status",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "goal": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "status": {
+          "type": "string",
+          "enum": ["planning", "executing", "completed", "failed", "cancelled"]
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "number"
+        }
+      },
+      "required": ["id", "goal", "status", "userId", "createdAt"]
+    },
+    "SwarmChatMessage": {
+      "title": "Swarm Chat Message",
+      "description": "Swarm conversation transcript message",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sender": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 50000
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "timestamp": {
+          "type": "number"
+        }
+      },
+      "required": ["id", "sender", "text", "userId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/appQuotas/{quotaId}": {
+      "schema": "AppQuota",
+      "description": "API call metrics and free plan limits per connected service per user"
+    },
+    "/memories/{memoryId}": {
+      "schema": "MemoryItem",
+      "description": "Cross-device persistent memory vault records per authenticated user"
+    },
+    "/vfs_files/{fileId}": {
+      "schema": "VfsFile",
+      "description": "Virtual file system files owned by user"
+    },
+    "/swarm_tasks/{taskId}": {
+      "schema": "SwarmTask",
+      "description": "Agent swarm execution task history per user"
+    },
+    "/swarm_chat/{messageId}": {
+      "schema": "SwarmChatMessage",
+      "description": "Swarm conversation messages per user"
+    }
+  }
+}

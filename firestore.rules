@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidQuota(data) {
+      return data.keys().hasAll(['id', 'serviceId', 'serviceName', 'usedCalls', 'maxLimit', 'userId', 'updatedAt']) &&
+             data.id is string &&
+             data.serviceId is string && data.serviceId.size() <= 128 &&
+             data.serviceName is string && data.serviceName.size() <= 128 &&
+             data.usedCalls is number &&
+             data.maxLimit is number &&
+             data.userId == request.auth.uid &&
+             data.updatedAt is number;
+    }
+
+    function isValidMemory(data) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'content', 'type', 'importance', 'timestamp']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.title is string && data.title.size() <= 256 &&
+             data.content is string && data.content.size() <= 100000 &&
+             data.type in ['episodic', 'semantic', 'document', 'user_profile'] &&
+             data.importance is number &&
+             data.timestamp is number;
+    }
+
+    function isValidVfsFile(data) {
+      return data.keys().hasAll(['path', 'name', 'language', 'content', 'userId', 'updatedAt']) &&
+             data.path is string && data.path.size() <= 512 &&
+             data.name is string && data.name.size() <= 256 &&
+             data.language is string && data.language.size() <= 64 &&
+             data.content is string && data.content.size() <= 200000 &&
+             data.userId == request.auth.uid &&
+             data.updatedAt is number;
+    }
+
+    function isValidSwarmTask(data) {
+      return data.keys().hasAll(['id', 'goal', 'status', 'userId', 'createdAt']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.goal is string && data.goal.size() <= 2048 &&
+             data.status in ['planning', 'executing', 'completed', 'failed', 'cancelled'] &&
+             data.userId == request.auth.uid &&
+             data.createdAt is number;
+    }
+
+    function isValidSwarmChat(data) {
+      return data.keys().hasAll(['id', 'sender', 'text', 'userId', 'timestamp']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.sender is string && data.sender.size() <= 128 &&
+             data.text is string && data.text.size() <= 50000 &&
+             data.userId == request.auth.uid &&
+             data.timestamp is number;
+    }
+
+    match /appQuotas/{quotaId} {
+      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidQuota(request.resource.data);
+      allow update: if isSignedIn() && isValidQuota(request.resource.data) && 
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /memories/{memoryId} {
+      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidMemory(request.resource.data);
+      allow update: if isSignedIn() && isValidMemory(request.resource.data) && 
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /vfs_files/{fileId} {
+      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidVfsFile(request.resource.data);
+      allow update: if isSignedIn() && isValidVfsFile(request.resource.data) && 
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /swarm_tasks/{taskId} {
+      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidSwarmTask(request.resource.data);
+      allow update: if isSignedIn() && isValidSwarmTask(request.resource.data) && 
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /swarm_chat/{messageId} {
+      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidSwarmChat(request.resource.data);
+      allow update: if isSignedIn() && isValidSwarmChat(request.resource.data) && 
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "JARVIS PRIME - ULTRA AI PLATFORM",
+  "description": "Ultra-premium autonomous AI agent platform featuring Jarvis Prime as the central executive orchestrator. Powered by Llama 3.3, DeepSeek-R1, Qwen 2.5, and Mistral open-weights models for secure, multi-agent autonomous execution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
